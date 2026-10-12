@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunaris AI Control Center</title>
+<style>
+:root {
+  --bg: #070b14;
+  --panel: rgba(16, 27, 46, .78);
+  --line: rgba(77, 205, 255, .22);
+  --cyan: #53e4ff;
+  --purple: #a88bff;
+  --muted: #91a5bd;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 15% 0%, #13294a 0, transparent 42%),
+    radial-gradient(ellipse at 95% 90%, #211344 0, transparent 35%),
+    var(--bg);
+  color: #edf7ff;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+.app { max-width: 1500px; margin: auto; padding: 24px; }
+header {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 16px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--line); padding-bottom: 22px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 52px; height: 52px; display: grid; place-items: center;
+  border: 1px solid var(--cyan); border-radius: 17px;
+  color: var(--cyan); font-size: 28px;
+  box-shadow: 0 0 25px #53e4ff20;
+}
+h1 { margin: 0; font-size: 25px; letter-spacing: 4px; }
+.subtitle { color: var(--muted); font-size: 12px; margin-top: 6px; }
+.status { color: var(--cyan); font-size: 12px; letter-spacing: 1px; }
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, .8fr);
+  gap: 20px; margin-top: 22px;
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 18px; padding: 20px;
+  box-shadow: 0 12px 40px #0003; backdrop-filter: blur(16px);
+}
+.panel-title {
+  font-size: 12px; color: var(--cyan);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+}
+.chat { display: flex; flex-direction: column; min-height: 510px; }
+.messages {
+  flex: 1; min-height: 300px; max-height: 52vh;
+  overflow-y: auto; padding: 4px 2px 16px;
+}
+.message {
+  padding: 13px 15px; border-radius: 12px; margin: 10px 0;
+  line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.assistant { background: #12243a; border: 1px solid #244766; }
+.user { background: #252044; border: 1px solid #51428a; margin-left: 12%; }
+.who { color: var(--cyan); font-size: 10px; letter-spacing: 1.5px; margin-bottom: 5px; }
+.composer { display: flex; gap: 10px; margin-top: 12px; }
+input {
+  flex: 1; min-width: 0; background: #080f1d; color: white;
+  border: 1px solid #2a4563; border-radius: 12px;
+  padding: 15px; outline: none; font-size: 14px;
+}
+input:focus { border-color: var(--cyan); }
+button {
+  cursor: pointer; border: 1px solid #53e4ff80; border-radius: 11px;
+  padding: 12px 17px; background: #103047; color: var(--cyan);
+  font-weight: 600; transition: .2s;
+}
+button:hover { background: #194663; box-shadow: 0 0 18px #53e4ff20; }
+button:disabled { opacity: .5; cursor: wait; }
+.side { display: flex; flex-direction: column; gap: 18px; }
+.metric {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 13px 0; border-bottom: 1px solid #ffffff12;
+}
+.metric:last-child { border-bottom: 0; }
+.value { color: var(--cyan); font-weight: 600; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.actions button { min-height: 65px; }
+.note { color: var(--muted); font-size: 12px; line-height: 1.6; }
+footer { color: #71849d; font-size: 11px; text-align: center; padding: 24px; }
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .app { padding: 14px; }
+  h1 { font-size: 21px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <h1>LUNARIS</h1>
+        <div class="subtitle">PERSONAL AI · LOCAL CONTROL CENTER</div>
+      </div>
+    </div>
+    <div class="status" id="connection">● DASHBOARD READY</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel chat">
+      <div class="panel-title">◈ Neural conversation</div>
+      <div class="messages" id="messages">
+        <div class="message assistant">
+          <div class="who">LUNARIS</div>
+          Hello! I'm Lunaris, your local AI assistant. Send me a message to begin.
+        </div>
+      </div>
+      <form class="composer" id="chatForm">
+        <input id="prompt" placeholder="Message Lunaris..." autocomplete="off" required>
+        <button id="send" type="submit">SEND ↗</button>
+      </form>
+      <p class="note">Your messages are sent to your local Lunaris engine on this laptop.</p>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-title">◈ System overview</div>
+        <div class="metric"><span>AI Engine</span><span class="value">OLLAMA</span></div>
+        <div class="metric"><span>Model</span><span class="value">QWEN 2.5</span></div>
+        <div class="metric"><span>CPU / RAM</span><span class="value">Ask Lunaris</span></div>
+        <div class="metric"><span>Battery</span><span class="value">Ask Lunaris</span></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">◈ Quick commands</div>
+        <div class="actions">
+          <button type="button" data-prompt="Use your get_system_vitals tool and report my CPU, RAM, and battery status.">▤ System status</button>
+          <button type="button" data-prompt="Use your open_local_app tool to open Notepad.">▣ Open Notepad</button>
+          <button type="button" data-prompt="Use your open_local_app tool to open Calculator.">＋ Calculator</button>
+          <button type="button" data-prompt="Introduce yourself and explain what you can do.">✧ About Lunaris</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">◈ Voice interface</div>
+        <p class="note">Voice controls are planned for the next stage. First, let's connect and test the dashboard chat.</p>
+      </section>
+    </aside>
+  </main>
+  <footer>LUNARIS · LOCAL AI INTERFACE · BUILT FOR YOUR DESKTOP</footer>
+</div>
+
+<script>
+const messages = document.getElementById("messages");
+const form = document.getElementById("chatForm");
+const promptInput = document.getElementById("prompt");
+const sendButton = document.getElementById("send");
+const connection = document.getElementById("connection");
+
+function addMessage(who, text) {
+  const bubble = document.createElement("div");
+  bubble.className = "message " + (who === "YOU" ? "user" : "assistant");
+  const label = document.createElement("div");
+  label.className = "who";
+  label.textContent = who;
+  const content = document.createElement("div");
+  content.textContent = text;
+  bubble.append(label, content);
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+async function sendMessage(text) {
+  text = text.trim();
+  if (!text) return;
+  addMessage("YOU", text);
+  promptInput.value = "";
+  sendButton.disabled = true;
+  connection.textContent = "● LUNARIS THINKING...";
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    addMessage("LUNARIS", data.reply || "No response received.");
+    connection.textContent = "● RESPONSE RECEIVED";
+  } catch (error) {
+    addMessage("SYSTEM", "Could not reach Lunaris: " + error.message +
+      "\nMake sure the engine and dashboard server are both running.");
+    connection.textContent = "● CONNECTION ERROR";
+  } finally {
+    sendButton.disabled = false;
+    promptInput.focus();
+  }
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  sendMessage(promptInput.value);
+});
+
+document.querySelectorAll("[data-prompt]").forEach(button => {
+  button.addEventListener("click", () => sendMessage(button.dataset.prompt));
+});
+</script>
+</body>
+</html>
